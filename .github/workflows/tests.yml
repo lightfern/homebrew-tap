@@ -22,5 +22,9 @@ jobs:
 
       - run: brew audit --tap lightfern/tap --strict --online
 
-      # The audit only downloads this runner's arch, so the Intel sha256s go unchecked without this.
-      - run: brew fetch --cask --arch=intel lightfern/tap/lightfern lightfern/tap/lightfern@beta
+      # The audit only checks this runner's arch. One cask per fetch: a batched fetch skips the
+      # checksum of a later cask whose URL matches an earlier one's.
+      - run: |
+          for cask in Casks/*.rb; do
+            brew fetch --cask --arch=intel "lightfern/tap/$(basename "$cask" .rb)"
+          done
