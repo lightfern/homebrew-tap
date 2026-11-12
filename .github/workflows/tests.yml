@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  casks:
+    runs-on: macos-26
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@d482da0e602890d3160aade42e72c8556103bf04 # 2026.10.26.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: brew trust --tap lightfern/tap
+
+      - run: brew style lightfern/tap
+
+      - run: brew audit --tap lightfern/tap --strict --online
+
+      # The audit only checks this runner's arch. One cask per fetch: a batched fetch skips the
+      # checksum of a later cask whose URL matches an earlier one's.
+      - run: |
+          for cask in Casks/*.rb; do
+            brew fetch --cask --arch=intel "lightfern/tap/$(basename "$cask" .rb)"
+          done
