@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  casks:
+    runs-on: macos-26
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@d482da0e602890d3160aade42e72c8556103bf04 # 2026.10.26.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: brew trust --tap lightfern/tap
+
+      - run: brew style lightfern/tap
+
+      - run: brew audit --tap lightfern/tap --strict --online
+
+      # The audit only downloads this runner's arch, so the Intel sha256s go unchecked without this.
+      - run: brew fetch --cask --arch=intel lightfern/tap/lightfern lightfern/tap/lightfern@beta

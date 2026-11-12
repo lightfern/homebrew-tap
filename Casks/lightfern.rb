@@ -16,6 +16,7 @@ cask "lightfern" do
   end
 
   auto_updates true
+  conflicts_with cask: "lightfern@beta"
   depends_on macos: :monterey
 
   app "Lightfern.app"
